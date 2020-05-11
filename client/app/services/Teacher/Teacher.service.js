@@ -3,14 +3,14 @@
 angular.module('hrr10MjbeApp')
   .service('Teacher', function($http, Auth, Util) {
 
-    var user, activeClass;
+    var user;
 
     var hasClass = function(classes, name) {
       for (var i = 0; i < classes.length; i++) {
-        if (classes[i].name.toLowerCase() === name.toLowerCase()) return true;
+        if (classes[i].name.toLowerCase() === name.toLowerCase()) {return true;}
       }
       return false;
-    }
+    };
 
     var hasStudent = function(classes, classId, studentEmail) {
       for (var i = 0; i < classes.length; i++) {
@@ -24,7 +24,7 @@ angular.module('hrr10MjbeApp')
         }
       }
       return false;
-    }
+    };
 
     var hasInvited = function(requests, email) {
       for (var i = 0; i < requests.length; i++) {
@@ -33,15 +33,15 @@ angular.module('hrr10MjbeApp')
         }
       }
       return false;
-    }
+    };
 
     var getUser = function(cb) {
-      if (user) return cb(user);
+      if (user) {return cb(user);}
       Auth.getCurrentUser(null).then(function(res) {
         user = res;
         cb(user);
       });
-    }
+    };
 
     var save = function(cb) {
       getUser(function(teacher) {
@@ -51,31 +51,31 @@ angular.module('hrr10MjbeApp')
         }, function(err) {
           console.log(err);
           Util.safeCb(cb)();
-        })
-      })
-    }
+        });
+      });
+    };
 
     this.addClass = function(name, cb) {
       getUser(function(teacher) {
-        if (hasClass(teacher.teacherData.classes, name)) return cb(-1);
+        if (hasClass(teacher.teacherData.classes, name)) {return cb(-1);}
         teacher.teacherData.classes.push({
           name: name,
           students: []
         });
         save(cb);
-      })
-    }
+      });
+    };
 
     this.removeClass = function(id) {
       getUser(function(teacher) {
         for (var i = 0; i < teacher.teacherData.classes.length; i++) {
-          if (teacher.teacherData.classes[i]._id === classId) {
+          if (teacher.teacherData.classes[i]._id === id) {
             teacher.teacherData.classes.splice(i, 1);
             return save();
           }
         }
-      })
-    }
+      });
+    };
 
     this.getClass = function(classId, cb) {
       getUser(function(teacher) {
@@ -85,14 +85,14 @@ angular.module('hrr10MjbeApp')
           }
         }
         cb(null);
-      })
-    }
+      });
+    };
 
     this.getClasses = function(cb) {
       getUser(function(teacher) {
         cb(teacher.teacherData.classes);
-      })
-    }
+      });
+    };
 
     this.getStudent = function(classId, studentId, cb) {
       this.getClass(classId, function(theClass) {
@@ -102,13 +102,13 @@ angular.module('hrr10MjbeApp')
           }
         }
         cb(null);
-      })
-    }
+      });
+    };
 
     this.sendInvite = function(email, classId, cb) {
       getUser(function(user) {
-        if (hasStudent(user.teacherData.classes, classId, email)) return cb(-1);
-        if (hasInvited(user.teacherData.pendingStudents, email)) return cb(-1);
+        if (hasStudent(user.teacherData.classes, classId, email)) {return cb(-1);}
+        if (hasInvited(user.teacherData.pendingStudents, email)) {return cb(-1);}
         $http({
           method: 'POST',
           url: '/api/users/invite',
@@ -120,18 +120,18 @@ angular.module('hrr10MjbeApp')
           getUser(function(user) {
             user.teacherData = response.data.teacherData;
             cb(response.status);
-          })
+          });
         }, function errorCallback(response) {
           cb(response.status);
         });
-      })
-    }
+      });
+    };
 
     this.getRequests = function(cb) {
       getUser(function(user) {
         cb(user.teacherData.pendingStudents);
-      })
-    }
+      });
+    };
 
     this.setModifications = function(classId, mod, cb) {
       this.getClass(classId, function(theClass) {
@@ -145,9 +145,9 @@ angular.module('hrr10MjbeApp')
         }).then(function(response) {
           user.teacherData = response.data.teacherData;
           cb();
-        })
-      })
-    }
+        });
+      });
+    };
 
     this.setIndividualModifications = function(classId, studentId, mod, cb) {
       this.getStudent(classId, studentId, function(student) {
@@ -161,11 +161,11 @@ angular.module('hrr10MjbeApp')
         }).then(function(response) {
           user.teacherData = response.data.teacherData;
           cb();
-        })
-      })
-    }
+        });
+      });
+    };
 
     this.clear = function() {
       user = null;
-    }
+    };
   });
